@@ -1,0 +1,16 @@
+# Course repo clone (nanolm code, run outputs, checkpoints, dataset) -- not submitted
+DeepDataMiningLearning/
+
+# Checkpoints and datasets, wherever they end up
+*.pt
+*.bin
+data/
+
+# Python and macOS clutter
+__pycache__/
+*.pyc
+.venv/
+.DS_Store
+
+# Report draft -- submitted to Canvas separately, not part of the repo
+report.md
