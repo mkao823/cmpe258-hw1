@@ -18,9 +18,7 @@ Patterns (A[t, s] = weight that query position t puts on key position s <= t):
   header      A[t, ':'] + A[t, newline] for the most recent ':'+newline pair (end of a speaker name);
               only t at least 2 past the newline
   newline     A[t, s], s = most recent newline; only t >= s + 2
-  induction   A[t, j+1], j = most recent earlier position whose last 3 characters equal the last 3
-              at t (so j+1 is "what came next last time"); only when j + 1 < t - 1
-  distance    sum_s A[t, s] * (t - s): mean look-back distance in characters (not a weight)
+  distance   sum_s A[t, s] * (t - s): mean look-back distance in characters (not a weight)
 `uniform` columns give the same average for attention spread evenly over positions 0..t.
 """
 import argparse
@@ -42,7 +40,7 @@ TEXTS = {
     "prose": "the quick brown fox jumps over the lazy dog and runs away",
     "repeat": "to be or not to be, to be or not to be, to be or not to be",
 }
-PATTERNS = ["prev", "self", "word_start", "last_space", "header", "newline", "induction"]
+PATTERNS = ["prev", "self", "word_start", "last_space", "header", "newline"]
 
 
 def targets(text: str) -> dict[str, list[tuple[int, list[int]]]]:
@@ -66,11 +64,6 @@ def targets(text: str) -> dict[str, list[tuple[int, list[int]]]]:
             out["newline"].append((t, [last_nl]))
         if header_end is not None and t >= header_end + 2:
             out["header"].append((t, [header_end - 1, header_end]))
-        if t >= 3:                                   # induction: same trigram seen before
-            tri = text[t - 2: t + 1]
-            j = text.rfind(tri, 0, t)                # match ends at j + 2 <= t - 1
-            if j != -1 and j + 3 < t - 1:
-                out["induction"].append((t, [j + 3]))
         if ch == " ":
             last_space = t
         if ch == "\n":

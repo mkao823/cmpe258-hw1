@@ -1,17 +1,13 @@
 # HW1 Task 1 -- loss of an untrained model, for two tokenizers, to compare with ln V.
 #   char: V = 65  -> ln V = 4.174        byte: V = 256 -> ln V = 5.545
 #
-# nanolm has no evaluation at step 0, so two variants are measured for each tokenizer:
-#   char / byte          train.max_steps=1 (the tutorial's suggestion). The model takes ONE AdamW step
-#                        at the warm-up learning rate 1e-3 x 1/100 = 1e-5 before it is evaluated.
-#                        This is not negligible: Adam's first step moves every parameter by ~lr in
-#                        the direction of its gradient sign, across ~3.2M parameters at once.
-#   char_lr0 / byte_lr0  the same run with train.lr=0, so the single step changes nothing and the
-#                        evaluated weights are exactly the initialization (the control).
+# train.max_steps=1 (the tutorial's suggestion): nanolm has no evaluation at step 0, so the model
+# takes exactly one AdamW step, at the warm-up learning rate 1e-3 x 1/100 = 1e-5, before it is
+# evaluated. It is therefore "almost", not strictly, untrained.
 #
 # Run from DeepDataMiningLearning/DeepDataMiningLearning/llm:
 #   python -m nanolm.sweep   --sweep ../../../configs/hw1_untrained.yaml
-#   python -m nanolm.analyze outputs/nanolm/sweeps/hw1_untrained --baseline char_lr0 --metric val_bpb
+#   python -m nanolm.analyze outputs/nanolm/sweeps/hw1_untrained --baseline char --metric val_bpb
 name: hw1_untrained
 base: ../DeepDataMiningLearning/DeepDataMiningLearning/llm/nanolm/configs/02b_char_transformer_modern.yaml
 seeds: [1337, 42]
@@ -22,7 +18,3 @@ runs:
     overrides: {data.tokenizer: char}
   - name: byte
     overrides: {data.tokenizer: byte}
-  - name: char_lr0
-    overrides: {data.tokenizer: char, train.lr: 0.0}
-  - name: byte_lr0
-    overrides: {data.tokenizer: byte, train.lr: 0.0}
